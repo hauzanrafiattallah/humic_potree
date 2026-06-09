@@ -55,23 +55,14 @@ git clone https://github.com/hauzanrafiattallah/humic_potree.git
 cd humic_potree
 ```
 
-### 2. Instal Dependensi Node.js
-Jalankan perintah berikut untuk menginstal seluruh pustaka yang diperlukan:
+### 2. Instal Dependensi dan Penyiapan Otomatis
+Jalankan perintah berikut untuk menginstal dependensi Node.js. Proses ini akan menjalankan skrip penyiapan (`tools/setup-potree.js`) yang mengunduh dan memasang pustaka aset Potree (kurang lebih 60MB) secara otomatis ke dalam direktori `public/potree`:
 ```bash
 npm install
 ```
+Setelah perintah di atas selesai, aset runtime Potree (`public/potree/build`, `public/potree/libs`, dll.) sudah siap digunakan tanpa langkah manual tambahan.
 
-### 3. Penyiapan Potree Runtime
-Aset pustaka visualisasi Potree (`public/potree`) tidak di-push ke GitHub untuk menjaga ukuran repositori tetap ringan. Lakukan langkah berikut untuk menyiapkannya:
-1. Unduh rilis resmi Potree (disarankan versi 1.8 atau 1.8.2) dari repositori resmi Potree di GitHub.
-2. Ekstrak file arsip tersebut.
-3. Salin direktori `build`, `libs`, dan `resources` dari hasil ekstrak ke dalam folder `/public/potree/` proyek ini.
-4. Struktur akhir direktori harus terlihat seperti berikut:
-   - `public/potree/build/`
-   - `public/potree/libs/`
-   - `public/potree/resources/`
-
-### 4. Penyiapan PotreeConverter
+### 3. Penyiapan PotreeConverter
 Aplikasi memerlukan binary `PotreeConverter` untuk memproses file `.las`/`.laz` menjadi struktur data octree. Karena binary ini bersifat *platform-dependent* (berbeda untuk Windows, Linux, dan macOS), Anda harus menyediakannya sendiri:
 1. Unduh rilis binary `PotreeConverter` (versi 2.1 atau 2.1.1) yang sesuai dengan sistem operasi Anda dari repositori resmi PotreeConverter di GitHub.
 2. Tempatkan file executable `PotreeConverter` ke dalam direktori `/tools/` proyek ini.
@@ -142,4 +133,4 @@ Folder rujukan aset visualisasi (`public/potree/`) dan binary executables (`tool
 1. **Ukuran File**: Berkas-berkas pustaka eksternal dan binary memiliki ukuran yang sangat besar, sehingga tidak efisien jika dimasukkan ke dalam Git.
 2. **Ketergantungan Platform**: Binary untuk macOS tidak akan bisa dijalankan di komputer berbasis Windows atau Linux, begitu pula sebaliknya. 
 
-Pengguna lain yang melakukan `clone` repositori ini **tetap dapat menggunakan aplikasi dengan normal** setelah mengikuti instruksi penyiapan manual pada bagian [Langkah Instalasi](#langkah-instalasi) di atas.
+Pengguna lain yang melakukan `clone` repositori ini **tetap dapat menggunakan aplikasi dengan normal** karena aset visualisasi Potree akan diunduh secara otomatis saat menjalankan `npm install`. Mereka hanya perlu menyalin berkas binary `PotreeConverter` yang sesuai dengan sistem operasi mereka ke dalam direktori `/tools/`.
