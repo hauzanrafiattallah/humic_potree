@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Local Point Cloud Viewer
 
-## Getting Started
+MVP lokal untuk upload, convert, dan view point cloud dengan Next.js, Potree Viewer, dan PotreeConverter. Aplikasi ini tidak memakai database, auth, cloud storage, atau queue; semua data disimpan di filesystem lokal.
 
-First, run the development server:
+## Fitur
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Landing page lokal.
+- Upload `.las`, `.laz`, `.e57`, `.ply`, `.pts`, atau `.xyz` dengan nama dataset.
+- `POST /api/upload` untuk menyimpan file dan menjalankan PotreeConverter.
+- Output konversi di `public/pointclouds/[dataset]`.
+- Viewer Potree di `/viewer/[dataset]`.
+- Dataset list lokal di `/datasets`, hanya untuk folder yang punya `metadata.json`.
+
+## Struktur Lokal
+
+```text
+public/
+  potree/              # runtime Potree hasil build, ignored
+  pointclouds/         # output conversion, ignored kecuali .gitkeep
+storage/
+  uploads/             # file upload asli, ignored kecuali .gitkeep
+tools/
+  PotreeConverter      # binary lokal, ignored
+  liblaszip.dylib      # dependency binary macOS, ignored
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Default aplikasi sudah mengikuti PRD:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+POTREE_CONVERTER_PATH=./tools/PotreeConverter
+UPLOAD_DIR=./storage/uploads
+POINTCLOUD_OUTPUT_DIR=./public/pointclouds
+NEXT_PUBLIC_POINTCLOUD_BASE_URL=/pointclouds
+MAX_UPLOAD_MB=1024
+PDAL_PATH=pdal
+```
 
-## Learn More
+Env var hanya diperlukan kalau path lokal atau limit upload ingin diganti. Untuk upload 700 MB+, default `MAX_UPLOAD_MB=1024` sudah cukup; naikkan nilai ini jika file lebih besar dari 1 GB.
 
-To learn more about Next.js, take a look at the following resources:
+Format `.las` dan `.laz` langsung masuk PotreeConverter. Format `.e57`, `.ply`, `.pts`, dan `.xyz` dikonversi dulu menjadi `prepared.laz` dengan PDAL, lalu masuk PotreeConverter.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev
+```
 
-## Deploy on Vercel
+Buka `http://localhost:3000`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Verifikasi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+## Catatan Potree
+
+Runtime Potree 1.8.2 dibuild dari source dan disalin ke `public/potree`. Folder ini di-ignore karena berisi artifact eksternal hasil build.
+
+PotreeConverter 2.1.1 tidak menyediakan release binary macOS arm64. Binary lokal di `tools/PotreeConverter` dibuild dari source dengan CMake dan TBB. Pada macOS, binary juga membutuhkan `tools/liblaszip.dylib` dan Homebrew TBB di `/opt/homebrew/opt/tbb`.
